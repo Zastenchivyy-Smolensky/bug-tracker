@@ -1,0 +1,79 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+/**
+ * Bug
+ *
+ * @ORM\Table(name="bug")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\BugRepository")
+ */
+class Bug
+{
+    /**
+     * @var int
+     *
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+    
+    /**
+     * 
+     * @ORM\Column(type="string")
+     * @var string
+     */
+    protected $description;
+    /**
+     * @ORM\Column(type="datetime")
+     * @var \DateTime
+     */
+
+    protected $created;
+
+    /**
+     *  @ORM\Column(type="string")
+     *  @var string
+     */
+
+     protected $status;
+
+     /**
+      * @ORM\ManyToOne(targetEntity="User", inversedBy="assignedBugs")
+      * @var User
+      */
+      protected $engineer;
+
+      /**
+       * @ORM\ManyToOne(targetEntity="User", inversedBy="reportedBugs")
+       * @var User
+       */
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Product")
+     * @ORM\JoinColumn(onDelete="CASCADE")
+     * @Assert\Count(min="1")
+     * @var Product[]
+     */
+    protected $products = null;
+
+    public function __construct()
+    {
+        $this->products = new ArrayCollection();
+    }
+
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+}
+

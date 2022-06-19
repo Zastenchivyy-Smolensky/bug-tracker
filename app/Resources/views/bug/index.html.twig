@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Bugs list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Description</th>
+                <th>Created</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for bug in bugs %}
+            <tr>
+                <td><a href="{{ path('bug_show', { 'id': bug.id }) }}">{{ bug.id }}</a></td>
+                <td>{{ bug.description }}</td>
+                <td>{% if bug.created %}{{ bug.created|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>{{ bug.status }}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('bug_show', { 'id': bug.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('bug_edit', { 'id': bug.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('bug_new') }}">Create a new bug</a>
+        </li>
+    </ul>
+{% endblock %}
