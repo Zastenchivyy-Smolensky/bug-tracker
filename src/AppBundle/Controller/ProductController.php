@@ -22,9 +22,10 @@ class ProductController extends Controller
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
 
-        $products = $em->getRepository('AppBundle:Product')->findAll();
+        $products = $this->getDoctrine()->getRepository('AppBundle:Bug')
+            ->getOpenBugsByProductQuery()
+            ->getResult();
 
         return $this->render('product/index.html.twig', array(
             'products' => $products,

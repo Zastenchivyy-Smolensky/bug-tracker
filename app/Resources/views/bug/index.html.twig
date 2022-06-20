@@ -1,43 +1,56 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Bugs list</h1>
+    <h1>Bug list</h1>
 
-    <table>
+    <table class="table table-striped table-hover table-bordered">
         <thead>
             <tr>
-                <th>Id</th>
-                <th>Description</th>
-                <th>Created</th>
-                <th>Status</th>
+                {# ソート可能な一覧表を表示する #}
+                <th {% if pagination.isSorted('b.id') %} class="sorted" {% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'Id', 'b.id') }}
+                </th>
+                <th {% if pagination.isSorted('b.description') %} class="sorted" {% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'Description', 'b.description') }}
+                </th>
+                <th {% if pagination.isSorted('b.status') %} class="sorted" {% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'Status', 'b.status') }}
+                </th>
+                <th {% if pagination.isSorted('b.created') %} class="sorted" {% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'Created', 'b.created') }}
+                </th>
+                <th>Reporter</th>
+                <th>Engineer</th>
+                <th>Products</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-        {% for bug in bugs %}
+        {% for bug in pagination %}
             <tr>
                 <td><a href="{{ path('bug_show', { 'id': bug.id }) }}">{{ bug.id }}</a></td>
                 <td>{{ bug.description }}</td>
-                <td>{% if bug.created %}{{ bug.created|date('Y-m-d H:i:s') }}{% endif %}</td>
                 <td>{{ bug.status }}</td>
+                <td>{% if bug.created %}{{ bug.created|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>{{ bug.reporter.name }}</td>
+                <td>{{ bug.engineer.name }}</td>
                 <td>
-                    <ul>
-                        <li>
-                            <a href="{{ path('bug_show', { 'id': bug.id }) }}">show</a>
-                        </li>
-                        <li>
-                            <a href="{{ path('bug_edit', { 'id': bug.id }) }}">edit</a>
-                        </li>
-                    </ul>
+                    {# プロダクト名を連結して表示する #}
+                    {% set str_products = [] %}
+                    {% for product in bug.products %}
+                        {% set str_products = str_products|merge([product.name]) %}
+                    {% endfor %}
+                    {{ str_products|join(', ') }}
+                </td>
+                <td>
+                    <a href="{{ path('bug_show', { 'id': bug.id }) }}" class="btn btn-default btn-xs" role="button">show</a>
+                    <a href="{{ path('bug_edit', { 'id': bug.id }) }}" class="btn btn-primary btn-xs" role="button">edit</a>
                 </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-    <ul>
-        <li>
-            <a href="{{ path('bug_new') }}">Create a new bug</a>
-        </li>
-    </ul>
+
+    <a href="{{ path('bug_new') }}" class="btn btn-primary" role="button">Create a new entry</a>
 {% endblock %}

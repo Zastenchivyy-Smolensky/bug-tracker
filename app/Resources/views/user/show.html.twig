@@ -4,15 +4,34 @@
     <h1>User</h1>
 
     <table>
-        <tbody>
+        <thead>
             <tr>
                 <th>Id</th>
-                <td>{{ user.id }}</td>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Reporter</th>
+                <th>Engineer</th>
+                <th>Products</th>
+                <th>Actions</th>
             </tr>
-            <tr>
-                <th>Name</th>
-                <td>{{ user.name }}</td>
-            </tr>
+        </thead>
+        <tbody>
+           {% for bug in bugs %}
+                <tr>
+                    <td><a href="{{ path('bug_show', { 'id': bug.id }) }}">{{ bug.id }}</a></td>
+                    <td>{{ bug.description }}</td>
+                    <td>{{ bug.status }}</td>
+                    <td>{% if bug.created %}{{ bug.created|date('Y-m-d H:i:s') }}{% endif %}</td>
+                    <td>{{ bug.reporter.name }}</td>
+                    <td>{{ bug.engineer.name }}</td>
+                    <td>{{ bug.products|join(', ') }}</td>
+                    <td>
+                        <a href="{{ path('bug_show', { 'id': bug.id }) }}" class="btn btn-default btn-xs" role="button">show</a>
+                        <a href="{{ path('bug_edit', { 'id': bug.id }) }}" class="btn btn-primary btn-xs" role="button">edit</a>
+                    </td>
+                </tr>
+            {% endfor %}
         </tbody>
     </table>
 

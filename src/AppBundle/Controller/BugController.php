@@ -2,11 +2,15 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Entity\Bug;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use AppBundle\Entity\Bug;
+use AppBundle\Form\BugType;
 
+use Doctrine\ORM\Query;
+use Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination;
 /**
  * Bug controller.
  *
@@ -20,14 +24,23 @@ class BugController extends Controller
      * @Route("/", name="bug_index")
      * @Method("GET")
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $query = $this->getDoctrine()->getRepository('AppBundle:Bug')
+            ->getRecentBugsArrayQuery();
+        /** @var Query $query */
 
-        $bugs = $em->getRepository('AppBundle:Bug')->findAll();
 
+        $paginator = $this->get('knp_paginator');        
+        /** @var SlidingPagination $pagination */
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1), // page number
+            5  // limit per page
+        );
+        
         return $this->render('bug/index.html.twig', array(
-            'bugs' => $bugs,
+            'pagination' => $pagination,
         ));
     }
 
@@ -70,6 +83,7 @@ class BugController extends Controller
     public function showAction(Bug $bug)
     {
         $deleteForm = $this->createDeleteForm($bug);
+        dump(get_class($bug->getEngineer()));
 
         return $this->render('bug/show.html.twig', array(
             'bug' => $bug,
@@ -92,7 +106,7 @@ class BugController extends Controller
         if ($editForm->isSubmitted() && $editForm->isValid()) {
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('bug_edit', array('id' => $bug->getId()));
+            return $this->redirectToRoute('bug_index', array('id' => $bug->getId()));
         }
 
         return $this->render('bug/edit.html.twig', array(
@@ -137,4 +151,23 @@ class BugController extends Controller
             ->getForm()
         ;
     }
+    /**
+     * @Route("/{id}/close", name="bug_close")
+     * @Method("PUT")
+     */
+
+     public function closeAction(Request $request, $id)
+     {
+        $repository = $this->getDoctrine()->getRepository("AppBundle:Bug");
+        $bug = $repository->find($id);
+        if(!$bug){
+            throw $this->createNotFoundException('No bug found for id '.$id);
+        }
+        if ($this->isCsrfTokenValid('close_bug', $request->get('_token'))) {
+            $em = $this->getDoctrine()->getManager();
+            $bug->close();
+            $em->flush();
+        }
+        return $this->redirectToRoute("bug_show",["id"=>$bug->getId()]);
+     }
 }

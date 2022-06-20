@@ -21,6 +21,18 @@
                 <th>Status</th>
                 <td>{{ bug.status }}</td>
             </tr>
+            <tr>
+                <th>Reporter</th>
+                <td>{{ bug.reporter.name }}</td>
+            </tr>
+            <tr>
+                <th>Engineer</th>
+                <td>{{ bug.engineer.name }}</td>
+            </tr>
+            <tr>
+                <th>Products</th>
+                <td>{{ bug.products|join(', ') }}</td>
+            </tr>
         </tbody>
     </table>
 
@@ -37,4 +49,14 @@
             {{ form_end(delete_form) }}
         </li>
     </ul>
+    {% if not bug.isClose %}
+        <form action="{{ path('bug_close', {'id': bug.id}) }}" method="post" style="display: inline">
+            {# HTTPのDELETEメソッドを指定 #}
+            <input type="hidden" name="_method" value="PUT">
+            {# CSRF対策のトークンを生成 #}
+            <input type="hidden" name="_token" value="{{ csrf_token('close_bug') }}">
+
+            <input class="btn btn-warning" type="submit" value="Close"/>
+        </form>
+    {% endif %}
 {% endblock %}
