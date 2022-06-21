@@ -22,7 +22,6 @@ class ProductController extends Controller
      */
     public function indexAction()
     {
-
         $products = $this->getDoctrine()->getRepository('AppBundle:Bug')
             ->getOpenBugsByProductQuery()
             ->getResult();
